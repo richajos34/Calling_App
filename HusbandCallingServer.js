@@ -1,7 +1,7 @@
 /**
  * Husband Contest API
  *
- * This API allows contestants to register, perform husband calls, and check their scores.
+ * This API allows contestants to register, perform husband calls, and check their scores for the Husband Calling Contest.
  *
  * API Endpoints:
  *
@@ -13,18 +13,9 @@
  *
  * - GET /husbandCall/:contestantName
  *   Simulate a "husband call" for a contestant, considering their vocal range, location, and inventory items.
- *
- * Contestant Schema:
- * - contestantName: Name of the contestant.
- * - husbandName: Name of the husband.
- * - vocalRange: Vocal range of the contestant.
- * - location: Location of the contestant.
- * - score: Current score of the contestant.
- *
- * Power Item Schema:
- * - contestantName: Name of the contestant who owns the item.
- * - item: Name of the power-up item.
- * - boost: Amount of vocal range boost provided by the item.
+ * 
+ * Richa Jos
+ * WDB Bootcamp Technical Portion
  */
 
 const express = require('express');
@@ -55,15 +46,12 @@ app.post('/contestants', async (req, res) => {
   const { contestantName, husbandName, vocalRange, location } = req.body;
 
   try {
-    // Create and save the contestant in the database
     const newContestant = new Contestant({
       contestantName,
       husbandName,
       vocalRange,
       location,
     });
-
-    // Validate if contestant name/ husband is there
     const query = {$or: [{"contestantName" : contestantName}, {"husbandName" : husbandName}]};
     const contestant = await Contestant.findOne(query);
 
@@ -75,14 +63,20 @@ app.post('/contestants', async (req, res) => {
 
     res.status(201).json({ message: 'Contestant and husband registered successfully.' });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to register contestant and husband.' });
+    res.status(500).json({ error: 'Failed to register contestant and husband. Check to see if you are missing any fields \n following the contestantName \n husbandName \n vocalrange \n location \n format' });
   }
 });
 
-// Get All Contestants
+// Get All Contestant Pairs Sorted Alphabetically
 app.get('/contestants', async (req, res) => {
   try {
-    const pairs = await Contestant.find({}, 'contestantName husbandName -_id').exec();
+    let pairs;
+
+    if (req.query.sortedByName === 'true') {
+      pairs = await Contestant.find({}, 'contestantName husbandName -_id').sort({ contestantName: 1 }).exec();
+    } else {
+      pairs = await Contestant.find({}, 'contestantName husbandName -_id').exec();
+    }
 
     res.status(200).json({ pairs });
   } catch (error) {
@@ -92,24 +86,22 @@ app.get('/contestants', async (req, res) => {
 
 
 
-// Husband Call route (unchanged)
+
+// Call A Contestant/Husband Pair Score
 app.get('/husbandCall/:contestantName', async (req, res) => {
     const { contestantName } = req.params;
     console.log("Contestant name " + contestantName);
 
-    // Find the contestant by name
     const query = {"contestantName" : contestantName};
     const contestant = await Contestant.findOne(query);
     console.log("Got contestant" + contestant);
-    //const contestant = contestants.find((c) => c.contestantName === contestantName);
   
     if (!contestant) {
       return res.status(404).json({ error: 'Contestant not found.' });
     }
   
     const { vocalRange, location } = contestant;
-  
-    // Calculate the score based on the rules
+
     let score = 0;
   
     if (vocalRange === location) {
@@ -120,7 +112,6 @@ app.get('/husbandCall/:contestantName', async (req, res) => {
       return res.status(400).json({ error: 'Vocal range is less than location. Cannot perform husband call.' });
     }
 
-    // updating the score
     const updateDoc = {
       $set: {
         score: score
@@ -133,8 +124,8 @@ app.get('/husbandCall/:contestantName', async (req, res) => {
     res.status(200).json({ score });
 });
 
-// INDUSTRY
-// Buy Power Item
+// INDUSTRY (not complete but I tried)
+// Buy Power Item (incomplete)
 app.post('/buyItem/:contestantName', async (req, res) => {
   const {contestantName} = req.params;
   const {item, boost} = req.body;
@@ -163,7 +154,7 @@ app.post('/buyItem/:contestantName', async (req, res) => {
   }
 });
 
-// Get Highest Scoring Contestant
+// Get Highest Scoring Contestant (incomplete)
 app.get('/bestShout', async (req, res) => {
   try {
     const highestShout = await Contestant.findOne({}, 'contestantName score -_id').sort({ score: -1 }).limit(1).exec();
