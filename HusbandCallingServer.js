@@ -79,22 +79,6 @@ app.post('/contestants', async (req, res) => {
   }
 });
 
-/* // Get All Contestants
-app.get('/contestants', async (req, res) => {
-  try {
-    const pairs = await Contestant.find({}, 'contestantName husbandName').exec();
-
-    // Industry Checkpoint: Sort by contestantName if sortedByName=true query parameter is provided.
-    if (req.query.sortedByName === 'true') {
-      pairs.sort((a, b) => a.contestantName.localeCompare(b.contestantName));
-    }
-
-    res.status(200).json({ pairs });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch contestants.' });
-  }
-}); */
-
 // Get All Contestants
 app.get('/contestants', async (req, res) => {
   try {
