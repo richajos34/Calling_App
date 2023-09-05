@@ -7,6 +7,6 @@ const powerSchema = new mongoose.Schema({
     boost: {type: Number, required: true}
   });
   
-  const Power = mongoose.model('Power', powerSchema);
+  const PowerItem = mongoose.model('PowerItem', powerSchema);
 
-  module.exports = Power;
+  module.exports = PowerItem;

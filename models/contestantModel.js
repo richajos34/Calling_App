@@ -6,6 +6,7 @@ const contestantSchema = new mongoose.Schema({
     husbandName: { type: String, unique: true, required: true },
     vocalRange: { type: Number, required: true },
     location: { type: Number, required: true },
+    score: {type: Number, required: false}
   });
   
   const Contestant = mongoose.model('Contestant', contestantSchema);
